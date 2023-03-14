@@ -14,7 +14,7 @@ namespace SaleShop.API.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Country>().HasIndex(x => x.Name);
+            modelBuilder.Entity<Country>().HasIndex(x => x.Name).IsUnique();
         }
     }
 }
