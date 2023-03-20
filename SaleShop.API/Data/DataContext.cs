@@ -11,10 +11,14 @@ namespace SaleShop.API.Data
 
         public DbSet<Country> Countries { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+		public DbSet<Category> Categories { get; set; }
+
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Country>().HasIndex(x => x.Name).IsUnique();
-        }
+			base.OnModelCreating(modelBuilder);
+			modelBuilder.Entity<Category>().HasIndex(x => x.Name).IsUnique();
+		}
     }
 }
