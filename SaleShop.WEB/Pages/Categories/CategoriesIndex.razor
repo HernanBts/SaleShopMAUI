@@ -14,8 +14,8 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th></th>
                     <th>Categoria</th>
+                    <th>Opciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,11 +23,11 @@
                 {
                     <tr>
                         <td>
-                            <a class="btn btn-warning" href="/categories/edit/@category.Id">Editar</a>
-                            <button class="btn btn-danger" @onclick="(()=> DeleteAsync(category.Id))">Borrar</button>
+                            @category.Name
                         </td>
                         <td>
-                            @category.Name
+                            <a class="btn btn-warning" href="/categories/edit/@category.Id">Editar</a>
+                            <button class="btn btn-danger" @onclick="(()=> DeleteAsync(category.Id))">Borrar</button>
                         </td>
                     </tr>
                 }
