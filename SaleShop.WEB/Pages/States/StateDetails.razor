@@ -1,43 +1,38 @@
-﻿@page "/countries/details/{Id:int}"
+﻿@page "/states/details/{StateId:int}"
 @inject IRepository repository
 @inject NavigationManager navigationManager
 @inject SweetAlertService sweetAlertService
 
-@if (country is null)
+@if (state is null)
 {
-    <p>Cargando...</p>
+	<p>Cargando...</p>
 }
 else
 {
-    <h3>@country.Name</h3>
+    <h3>@state.Name</h3>
     <div class="mb-3">
-        <a class="btn btn-primary" href="/states/create/@country.Id">Nueva Provincia</a>
-        <a class="btn btn-success" href="/countries">Regresar</a>
+        <a class="btn btn-primary" href="/cities/create/@StateId">Nueva Ciudad</a>
+        <a class="btn btn-success" href="/countries/details/@state.CountryId">Regresar</a>
     </div>
-    <GenericList MyList="country.States!.ToList()">
+    <GenericList MyList="state.Cities!.ToList()">
         <Body>
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Provincia</th>
-                        <th>Ciudades</th>
+                        <th>Ciudad</th>
                         <th>Opciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var state in country.States!.ToList())
+                    @foreach (var city in state.Cities!.ToList())
                     {
                         <tr>
                             <td>
-                                @state.Name
+                                @city.Name
                             </td>
                             <td>
-                                @state.CitiesNumber
-                            </td>
-                            <td>
-                                <a class="btn btn-info" href="/states/details/@state.Id">Detalle</a>
-                                <a class="btn btn-warning" href="/states/edit/@state.Id">Editar</a>
-                                <button class="btn btn-danger" @onclick="(()=> DeleteAsync(state.Id))">Borrar</button>
+                                <a class="btn btn-warning" href="/cities/edit/@city.Id">Editar</a>
+                                <button class="btn btn-danger" @onclick="(()=> DeleteAsync(city.Id))">Borrar</button>
                             </td>
                         </tr>
                     }
@@ -48,10 +43,10 @@ else
 }
 
 @code {
-    private Country? country;
+    private State? state;
 
     [Parameter]
-    public int Id { get; set; }
+    public int StateId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -60,7 +55,7 @@ else
 
     private async Task LoadAsync()
     {
-        var responseHttp = await repository.GetAsync<Country>($"/api/countries/{Id}");
+        var responseHttp = await repository.GetAsync<State>($"/api/states/{StateId}");
         if (responseHttp.Error)
         {
             if (responseHttp.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)
@@ -72,15 +67,15 @@ else
             await sweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
             return;
         }
-        country = responseHttp.Response;
+        state = responseHttp.Response;
     }
 
     private async Task DeleteAsync(int id)
     {
         var result = await sweetAlertService.FireAsync(new SweetAlertOptions
             {
-                Title = "Borrar Provincia..",
-                Text = "Esta seguro que deseas borrar la Provincia?",
+                Title = "Borrar Ciudad..",
+                Text = "Esta seguro que deseas borrar la ciudad?",
                 Icon = SweetAlertIcon.Question,
                 ShowCancelButton = true,
                 CancelButtonText = "No",
@@ -90,7 +85,7 @@ else
         var confirm = string.IsNullOrEmpty(result.Value);
         if (confirm) return;
 
-        var responseHttp = await repository.DeleteAsync($"/api/states/{id}");
+        var responseHttp = await repository.DeleteAsync($"/api/cities/{id}");
         if (responseHttp.Error)
         {
             if (responseHttp.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound)

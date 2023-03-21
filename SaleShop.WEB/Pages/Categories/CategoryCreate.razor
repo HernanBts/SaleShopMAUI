@@ -5,13 +5,13 @@
 
 <h3>Crear Pais</h3>
 
-<CategoryForm @ref="categoryForm" Category="category" OnValidSubmit="Create" ReturnAction="Return" />
+<CategoryForm @ref="categoryForm" Category="category" OnValidSubmit="CreateAsync" ReturnAction="Return" />
 
 @code {
 	private Category category = new();
 	private CategoryForm? categoryForm;
 
-	private async Task Create()
+	private async Task CreateAsync()
 	{
 		var httpResponse = await repository.PostAsync("/api/categories", category);
 		if (httpResponse.Error)

@@ -5,7 +5,7 @@
 
 <h3>Crear Provincia</h3>
 
-<StateForm @ref="stateForm" State="state" OnValidSubmit="Create" ReturnAction="Return" />
+<StateForm @ref="stateForm" State="state" OnValidSubmit="CreateAsync" ReturnAction="Return" />
 
 @code {
 	private State state = new();
@@ -14,7 +14,7 @@
 	[Parameter]
 	public int CountryId { get; set; }
 
-	private async Task Create()
+	private async Task CreateAsync()
 	{
 		state.CountryId = CountryId;
 		var httpResponse = await repository.PostAsync("/api/states", state);
