@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SaleShop.API.Data;
+using SaleShop.API.Helpers;
+using SaleShop.Shared.DTOs;
 using SaleShop.Shared.Entities;
 
 namespace SaleShop.API.Controllers
@@ -17,9 +19,17 @@ namespace SaleShop.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        [HttpGet]
+        public async Task<ActionResult> Get([FromQuery] PaginationDTO pagination)
         {
-            return Ok(await _context.Cities.ToListAsync());
+            var queryable = _context.Cities
+                .Where(x => x.State!.Id == pagination.Id)
+                .AsQueryable();
+
+            return Ok(await queryable
+                .OrderBy(x => x.Name)
+                .Paginate(pagination)
+                .ToListAsync());
         }
 
         [HttpGet("{id:int}")]
@@ -92,6 +102,18 @@ namespace SaleShop.API.Controllers
             _context.Remove(city);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        [HttpGet("totalPages")]
+        public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
+        {
+            var queryable = _context.Cities
+                .Where(x => x.State!.Id == pagination.Id)
+                .AsQueryable();
+
+            double count = await queryable.CountAsync();
+            double totalPages = Math.Ceiling(count / pagination.ItemsNumber);
+            return Ok(totalPages);
         }
     }
 }
