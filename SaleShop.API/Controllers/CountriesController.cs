@@ -22,7 +22,13 @@ namespace SaleShop.API.Controllers
         public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
             var queryable = _context.Countries.Include(x => x.States).AsQueryable();
-			return Ok(await queryable
+
+            if (!string.IsNullOrWhiteSpace(pagination.Filter))
+            {
+                queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+            }
+
+            return Ok(await queryable
                 .OrderBy(x => x.Name)
                 .Paginate(pagination)
                 .ToListAsync());
@@ -116,7 +122,13 @@ namespace SaleShop.API.Controllers
 		public async Task<ActionResult> GetPages([FromQuery] PaginationDTO pagination)
 		{
 			var queryable = _context.Countries.AsQueryable();
-			double count = await queryable.CountAsync();
+
+            if (!string.IsNullOrWhiteSpace(pagination.Filter))
+            {
+                queryable = queryable.Where(x => x.Name.ToLower().Contains(pagination.Filter.ToLower()));
+            }
+
+            double count = await queryable.CountAsync();
 			double totalPages = Math.Ceiling(count / pagination.ItemsNumber);
 			return Ok(totalPages);
 		}
