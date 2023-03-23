@@ -22,8 +22,9 @@ namespace SaleShop.API.Controllers
         public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
             var queryable = _context.States
-               .Where(x => x.Country!.Id == pagination.Id)
-               .AsQueryable();
+                .Include(x => x.Cities)
+			    .Where(x => x.Country!.Id == pagination.Id)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {

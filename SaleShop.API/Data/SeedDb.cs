@@ -2,6 +2,8 @@
 using SaleShop.API.Services;
 using Microsoft.EntityFrameworkCore;
 using SaleShop.Shared.Responses;
+using SaleShop.API.Helpers;
+using SaleShop.Shared.Enums;
 
 namespace SaleShop.API.Data
 {
@@ -9,21 +11,56 @@ namespace SaleShop.API.Data
 	{
 		private DataContext _context;
 		private readonly IApiService _apiService;
+        private readonly IUserHelper _userHelper;
 
-		public SeedDb(DataContext context, IApiService apiService)
+        public SeedDb(DataContext context, IApiService apiService, IUserHelper userHelper)
 		{
 			_context = context;
 			_apiService = apiService;
-		}
+            _userHelper = userHelper;
+        }
 
 		public async Task SeedAsync()
 		{
 			await _context.Database.EnsureCreatedAsync();
 			await CheckCountriesAsync();
 			await CheckCategoriesAsync();
-		}
+            await CheckRolesAsync();
+            await CheckUserAsync("34035139", "Hernan", "Barrientos", "bts.hernan@gmail.com", "362450881", "Av. Sarmiento 141", UserType.Admin);
+        }
 
-		private async Task CheckCountriesAsync()
+        private async Task<User> CheckUserAsync(string document, string firstName, string lastName, string email, string phone, string address, UserType userType)
+        {
+            var user = await _userHelper.GetUserAsync(email);
+            if (user == null)
+            {
+                user = new User
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Email = email,
+                    UserName = email,
+                    PhoneNumber = phone,
+                    Address = address,
+                    Document = document,
+                    City = _context.Cities.FirstOrDefault(),
+                    UserType = userType,
+                };
+
+                await _userHelper.AddUserAsync(user, "321456");
+                await _userHelper.AddUserToRoleAsync(user, userType.ToString());
+            }
+
+            return user;
+        }
+
+        private async Task CheckRolesAsync()
+        {
+            await _userHelper.CheckRoleAsync(UserType.Admin.ToString());
+            await _userHelper.CheckRoleAsync(UserType.User.ToString());
+        }
+
+        private async Task CheckCountriesAsync()
 		{
 			if (!_context.Countries.Any())
 			{

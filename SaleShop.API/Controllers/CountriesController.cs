@@ -21,7 +21,9 @@ namespace SaleShop.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAsync([FromQuery] PaginationDTO pagination)
         {
-            var queryable = _context.Countries.Include(x => x.States).AsQueryable();
+            var queryable = _context.Countries
+                .Include(x => x.States)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {

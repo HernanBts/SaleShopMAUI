@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SaleShop.API.Data;
+using SaleShop.API.Helpers;
 using SaleShop.API.Services;
+using SaleShop.Shared.Entities;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +17,19 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer("name=DbConnection"));
 builder.Services.AddTransient<SeedDb>();
 builder.Services.AddScoped<IApiService, ApiService>();
+builder.Services.AddScoped<IUserHelper, UserHelper>();
+
+builder.Services.AddIdentity<User, IdentityRole>(x =>
+    {
+        x.User.RequireUniqueEmail = true;
+        x.Password.RequireDigit = false;
+        x.Password.RequiredUniqueChars = 0;
+        x.Password.RequireLowercase = false;
+        x.Password.RequireNonAlphanumeric = false;
+        x.Password.RequireUppercase = false;
+    })
+    .AddEntityFrameworkStores<DataContext>()
+    .AddDefaultTokenProviders();
 
 
 var app = builder.Build();
@@ -38,6 +54,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
