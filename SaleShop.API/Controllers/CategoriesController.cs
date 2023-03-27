@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SaleShop.API.Data;
 using SaleShop.Shared.Entities;
@@ -6,6 +8,7 @@ using SaleShop.Shared.Entities;
 namespace SaleShop.API.Controllers
 {
 	[ApiController]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	[Route("/api/categories")]
 	public class CategoriesController : ControllerBase
 	{

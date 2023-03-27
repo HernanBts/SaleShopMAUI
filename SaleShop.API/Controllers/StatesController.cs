@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SaleShop.API.Data;
 using SaleShop.API.Helpers;
@@ -8,7 +10,8 @@ using SaleShop.Shared.Entities;
 namespace SaleShop.API.Controllers
 {
     [ApiController]
-    [Route("/api/states")]
+	[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+	[Route("/api/states")]
     public class StatesController : ControllerBase
     {
         private readonly DataContext _context;
