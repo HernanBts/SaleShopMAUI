@@ -21,7 +21,15 @@ namespace SaleShop.API.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [AllowAnonymous]
+        [HttpGet("combo/{stateId:int}")]
+        public async Task<ActionResult> GetComboAsync(int stateId)
+        {
+            return Ok(await _context.Cities
+                .Where(x => x.StateId == stateId)
+                .ToListAsync());
+        }
+
         [HttpGet]
         public async Task<ActionResult> Get([FromQuery] PaginationDTO pagination)
         {
