@@ -34,6 +34,12 @@ namespace SaleShop.API.Data
             var user = await _userHelper.GetUserAsync(email);
             if (user == null)
             {
+                var city = await _context.Cities.FirstOrDefaultAsync(x => x.Name == "Resistencia");
+                if (city == null)
+                {
+                    city = await _context.Cities.FirstOrDefaultAsync();
+                }
+
                 user = new User
                 {
                     FirstName = firstName,
@@ -49,6 +55,9 @@ namespace SaleShop.API.Data
 
                 await _userHelper.AddUserAsync(user, "321456");
                 await _userHelper.AddUserToRoleAsync(user, userType.ToString());
+
+                var token = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+                await _userHelper.ConfirmEmailAsync(user, token);
             }
 
             return user;
