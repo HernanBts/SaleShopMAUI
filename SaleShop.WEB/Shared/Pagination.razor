@@ -1,31 +1,37 @@
 ﻿<nav>
-	<ul class="pagination">
-
-		@foreach (var link in Links)
-		{
-            <li @onclick=@(() => InternalSelectedPage(link)) style="@(link.Page == CurrentPage? "cursor: pointer" : null)
-                @(link.Page > 0 ? null : "cursor: pointer")
-                @(link.Page == TotalPages+1 ? null : "cursor: pointer")" class="page-item
-                @(link.Enable ? "active" : "disabled")">
-				<a class="page-link">@link.Text</a>
-			</li>
-		}
-	</ul>
+    <ul class="pagination">
+        @foreach (var link in Links)
+        {
+            <li @onclick=@(() => InternalSelectedPage(link)) style="cursor: pointer" class="page-item @(link.Enable ? null : "disabled") @(link.Enable ? "active" : null)">
+                <a class="page-link">@link.Text</a>
+            </li>
+        }
+    </ul>
 </nav>
 
 @code {
     [Parameter] public int CurrentPage { get; set; } = 1;
     [Parameter] public int TotalPages { get; set; }
-    [Parameter] public int Radio { get; set; } = 3;
+    [Parameter] public int Radio { get; set; } = 10;
     [Parameter] public EventCallback<int> SelectedPage { get; set; }
-	List<PageModel> Links = new();
+    List<PageModel> Links = new();
+
+    private async Task InternalSelectedPage(PageModel pageModel)
+    {
+        if (pageModel.Page == CurrentPage || pageModel.Page == 0)
+        {
+            return;
+        }
+
+        await SelectedPage.InvokeAsync(pageModel.Page);
+    }
 
     protected override void OnParametersSet()
     {
         Links = new List<PageModel>();
-
         var previousLinkEnable = CurrentPage != 1;
         var previousLinkPage = CurrentPage - 1;
+
         Links.Add(new PageModel
             {
                 Text = "Anterior",
@@ -35,7 +41,27 @@
 
         for (int i = 1; i <= TotalPages; i++)
         {
-            if (i >= CurrentPage - Radio && i <= CurrentPage + Radio)
+            if (TotalPages <= Radio)
+            {
+                Links.Add(new PageModel
+                    {
+                        Page = i,
+                        Enable = CurrentPage == i,
+                        Text = $"{i}"
+                    });
+            }
+
+            if (TotalPages > Radio && i <= Radio && CurrentPage <= Radio)
+            {
+                Links.Add(new PageModel
+                    {
+                        Page = i,
+                        Enable = CurrentPage == i,
+                        Text = $"{i}"
+                    });
+            }
+
+            if (CurrentPage > Radio && i > CurrentPage - Radio && i <= CurrentPage)
             {
                 Links.Add(new PageModel
                     {
@@ -47,30 +73,20 @@
         }
 
         var linkNextEnable = CurrentPage != TotalPages;
-        var linkNextPage = CurrentPage + 1;
+        var linkNextPage = CurrentPage != TotalPages ? CurrentPage + 1 : CurrentPage;
         Links.Add(new PageModel
             {
                 Text = "Siguiente",
                 Page = linkNextPage,
                 Enable = linkNextEnable
             });
-
     }
 
-    private async Task InternalSelectedPage(PageModel pageModel)
+    class PageModel
     {
-        if (pageModel.Page == CurrentPage || pageModel.Page == 0 || pageModel.Page == TotalPages + 1)
-        {
-            return;
-        }
-        await SelectedPage.InvokeAsync(pageModel.Page);
+        public string Text { get; set; } = null!;
+        public int Page { get; set; }
+        public bool Enable { get; set; } = true;
+        public bool Active { get; set; } = false;
     }
-
-	class PageModel
-	{
-		public string Text { get; set; } = null!;
-		public int Page { get; set; }
-		public bool Enable { get; set; } = true;
-		public bool Active { get; set; } = false;
-	}
 }
